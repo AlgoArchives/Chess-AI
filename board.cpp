@@ -96,3 +96,17 @@ int minimax(int depth, bool isMaximizingPlayer, int alpha, int beta) {
         return minEval;
     }
 }
+
+
+
+
+
+void playGame() {
+    int turn = 1; // White's turn
+    while (true) {
+        printBoard();
+        int score = minimax(3, turn == 1, std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+        std::cout << "Score: " << score << std::endl;
+        turn *= -1;
+    }
+}
