@@ -65,3 +65,34 @@ int evaluateBoard() {
     }
     return score;
 }
+
+
+
+
+int minimax(int depth, bool isMaximizingPlayer, int alpha, int beta) {
+    if (depth == 0) {
+        return evaluateBoard();
+    }
+    
+    if (isMaximizingPlayer) {
+        int maxEval = std::numeric_limits<int>::min();
+        // Loop through all possible moves for maximizing player
+        // For each move:
+        //     int eval = minimax(depth - 1, false, alpha, beta);
+        //     maxEval = std::max(maxEval, eval);
+        //     alpha = std::max(alpha, eval);
+        //     if (beta <= alpha)
+        //         break;
+        return maxEval;
+    } else {
+        int minEval = std::numeric_limits<int>::max();
+        // Loop through all possible moves for minimizing player
+        // For each move:
+        //     int eval = minimax(depth - 1, true, alpha, beta);
+        //     minEval = std::min(minEval, eval);
+        //     beta = std::min(beta, eval);
+        //     if (beta <= alpha)
+        //         break;
+        return minEval;
+    }
+}
