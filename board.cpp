@@ -53,3 +53,15 @@ std::vector<std::pair<int, int>> generateKnightMoves(int x, int y) {
     }
     return moves;
 }
+
+
+
+int evaluateBoard() {
+    int score = 0;
+    for (int i = 0; i < BOARD_SIZE; ++i) {
+        for (int j = 0; j < BOARD_SIZE; ++j) {
+            score += board[i][j]; // Simple evaluation: positive for white, negative for black
+        }
+    }
+    return score;
+}
