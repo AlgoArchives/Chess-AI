@@ -28,3 +28,28 @@ void printBoard() {
         std::cout << std::endl;
     }
 }
+
+
+
+std::vector<std::pair<int, int>> generatePawnMoves(int x, int y, bool isWhite) {
+    std::vector<std::pair<int, int>> moves;
+    int direction = isWhite ? -1 : 1;
+    if (board[x + direction][y] == EMPTY) { // Forward move
+        moves.push_back({x + direction, y});
+    }
+    // Add other pawn moves (captures, en passant) here
+    return moves;
+}
+
+std::vector<std::pair<int, int>> generateKnightMoves(int x, int y) {
+    std::vector<std::pair<int, int>> moves;
+    const int knightMoves[8][2] = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
+    for (auto& move : knightMoves) {
+        int newX = x + move[0];
+        int newY = y + move[1];
+        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE) {
+            moves.push_back({newX, newY});
+        }
+    }
+    return moves;
+}
