@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include <algorithm>
 
 enum Piece {
     EMPTY = 0,
@@ -29,77 +30,104 @@ void printBoard() {
     }
 }
 
-
-
+// Generate moves for pawns
 std::vector<std::pair<int, int>> generatePawnMoves(int x, int y, bool isWhite) {
     std::vector<std::pair<int, int>> moves;
     int direction = isWhite ? -1 : 1;
-    if (board[x + direction][y] == EMPTY) { // Forward move
-        moves.push_back({x + direction, y});
+    if (x + direction >= 0 && x + direction < BOARD_SIZE && board[x + direction][y] == EMPTY) {
+        moves.push_back({x + direction, y});  // Move forward
     }
-    // Add other pawn moves (captures, en passant) here
+    // Capture diagonally
+    if (y - 1 >= 0 && board[x + direction][y - 1] * (isWhite ? -1 : 1) > 0) {
+        moves.push_back({x + direction, y - 1});
+    }
+    if (y + 1 < BOARD_SIZE && board[x + direction][y + 1] * (isWhite ? -1 : 1) > 0) {
+        moves.push_back({x + direction, y + 1});
+    }
     return moves;
 }
 
+// Generate moves for knights
 std::vector<std::pair<int, int>> generateKnightMoves(int x, int y) {
     std::vector<std::pair<int, int>> moves;
     const int knightMoves[8][2] = {{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {1, -2}, {-1, 2}, {-1, -2}};
     for (auto& move : knightMoves) {
         int newX = x + move[0];
         int newY = y + move[1];
-        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE) {
+        if (newX >= 0 && newX < BOARD_SIZE && newY >= 0 && newY < BOARD_SIZE && (board[newX][newY] * board[x][y]) <= 0) {
             moves.push_back({newX, newY});
         }
     }
     return moves;
 }
 
-
-
+// Evaluation function
 int evaluateBoard() {
     int score = 0;
     for (int i = 0; i < BOARD_SIZE; ++i) {
         for (int j = 0; j < BOARD_SIZE; ++j) {
-            score += board[i][j]; // Simple evaluation: positive for white, negative for black
+            score += board[i][j]; // Simplified: positive score for white, negative for black
         }
     }
     return score;
 }
 
-
-
-
+// Minimax with Alpha-Beta Pruning
 int minimax(int depth, bool isMaximizingPlayer, int alpha, int beta) {
     if (depth == 0) {
         return evaluateBoard();
     }
-    
+
     if (isMaximizingPlayer) {
         int maxEval = std::numeric_limits<int>::min();
-        // Loop through all possible moves for maximizing player
-        // For each move:
-        //     int eval = minimax(depth - 1, false, alpha, beta);
-        //     maxEval = std::max(maxEval, eval);
-        //     alpha = std::max(alpha, eval);
-        //     if (beta <= alpha)
-        //         break;
+        for (int i = 0; i < BOARD_SIZE; ++i) {
+            for (int j = 0; j < BOARD_SIZE; ++j) {
+                if (board[i][j] > 0) { // White pieces
+                    auto moves = generatePawnMoves(i, j, true);
+                    for (auto& move : moves) {
+                        int temp = board[move.first][move.second];
+                        board[move.first][move.second] = board[i][j];
+                        board[i][j] = EMPTY;
+
+                        int eval = minimax(depth - 1, false, alpha, beta);
+                        maxEval = std::max(maxEval, eval);
+                        alpha = std::max(alpha, eval);
+
+                        board[i][j] = board[move.first][move.second];
+                        board[move.first][move.second] = temp;
+
+                        if (beta <= alpha) break;
+                    }
+                }
+            }
+        }
         return maxEval;
     } else {
         int minEval = std::numeric_limits<int>::max();
-        // Loop through all possible moves for minimizing player
-        // For each move:
-        //     int eval = minimax(depth - 1, true, alpha, beta);
-        //     minEval = std::min(minEval, eval);
-        //     beta = std::min(beta, eval);
-        //     if (beta <= alpha)
-        //         break;
+        for (int i = 0; i < BOARD_SIZE; ++i) {
+            for (int j = 0; j < BOARD_SIZE; ++j) {
+                if (board[i][j] < 0) { // Black pieces
+                    auto moves = generatePawnMoves(i, j, false);
+                    for (auto& move : moves) {
+                        int temp = board[move.first][move.second];
+                        board[move.first][move.second] = board[i][j];
+                        board[i][j] = EMPTY;
+
+                        int eval = minimax(depth - 1, true, alpha, beta);
+                        minEval = std::min(minEval, eval);
+                        beta = std::min(beta, eval);
+
+                        board[i][j] = board[move.first][move.second];
+                        board[move.first][move.second] = temp;
+
+                        if (beta <= alpha) break;
+                    }
+                }
+            }
+        }
         return minEval;
     }
 }
-
-
-
-
 
 void playGame() {
     int turn = 1; // White's turn
