@@ -110,3 +110,8 @@ void playGame() {
         turn *= -1;
     }
 }
+
+int main() {
+    playGame();
+    return 0;
+}
